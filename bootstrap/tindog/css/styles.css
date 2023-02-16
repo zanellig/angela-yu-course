@@ -32,7 +32,7 @@ body {
 /* Main content */
 
 .main-container {
-  padding: 0 15%;
+  padding: 0 7.5% 12.5% 7.5%;
 }
 
 h1 {
@@ -45,9 +45,14 @@ h1 {
   margin: 5% 3% 5% 0;
 }
 
+.image-container{
+  position: relative;
+}
+
 .title-image {
   transform: rotate(25deg);
   width: 60%;
+  position: absolute;
 }
 
 /* Features section */
@@ -58,8 +63,11 @@ h3 {
 }
 
 #features {
-  padding: 7% 15%;
-  margin: 7.5% 0;
+  background-color: #fff;
+  padding: 15% 15%;
+  position: relative;
+  /* margin: 7.5% 0; */
+  z-index: 1;
 }
 
 .subtitle {
