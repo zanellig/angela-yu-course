@@ -2,6 +2,18 @@
 
 body {
   font-family: "Montserrat";
+  color: #313131;
+}
+
+.price-text, .testimonial-text, .plans-title{
+  font-size: 3rem;
+  font-weight: 800;
+  line-height: 1.5;
+}
+
+.feature-title , .card-title{
+  font-size: 1.5rem;
+  font-weight: 800;
 }
 
 #title {
@@ -35,8 +47,7 @@ body {
   padding: 0 7.5% 12.5% 7.5%;
 }
 
-h1 {
-  font-family: "Montserrat";
+.big-heading{
   font-size: 3.5rem;
   font-weight: 800;
 }
@@ -67,11 +78,6 @@ h1 {
 }
 
 /* Features section */
-
-h3 {
-  font-size: 1.5rem;
-  font-weight: 800;
-}
 
 #features {
   background-color: #fff;
@@ -106,12 +112,6 @@ h3 {
   color: #fff;
 }
 
-h2 {
-  font-size: 3rem;
-  font-weight: 800;
-  line-height: 1.5;
-}
-
 .testimonial-image {
   width: 10%;
   border-radius: 100%;
@@ -142,6 +142,46 @@ h2 {
   text-align: center;
 }
 
+.price-text{
+  font-weight: 600;
+}
+
 .pricing-column {
   padding: 3% 2%;
+}
+
+.text-muted{
+  font-weight: 400;
+}
+
+/* CTA */
+
+#cta{
+  background-color: #ff4c68;
+  text-align: center;
+  padding: 7.5% 15%;
+}
+
+.cta-title{
+  color: #fff;
+  font-size: 3.5rem;
+  font-weight: 800;
+}
+
+/* Footer */
+
+#footer{
+  background-color: #fff;
+  padding: 7.5% 15%;
+  text-align: center;
+}
+
+.footer-icon{
+  color: #313131;
+  margin: 1rem;
+}
+
+.copyright{
+ color: #8f8f8f; 
+ margin: 1rem 0 0;
 }
