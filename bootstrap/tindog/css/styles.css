@@ -53,6 +53,17 @@ h1 {
   transform: rotate(25deg);
   width: 60%;
   position: absolute;
+  right: 30%
+}
+
+@media (max-width: 991px){
+  .title-image{
+    position: static;
+    transform: rotate(0deg);
+  }
+  #title{
+    text-align: center;
+  }
 }
 
 /* Features section */
@@ -66,8 +77,6 @@ h3 {
   background-color: #fff;
   padding: 15% 15%;
   position: relative;
-  /* margin: 7.5% 0; */
-  z-index: 1;
 }
 
 .subtitle {
