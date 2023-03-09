@@ -134,3 +134,17 @@
 // }
 
 // }
+
+// function fibonacciGenerator(n){
+//     let arr = [0];
+//     let index = 0;
+//     if(n === 1){return arr} else {
+//         arr.push(1)
+//     }
+//     while(n > arr.length){
+//       let newNumber = arr[index] + arr[index + 1];
+//         arr.push(newNumber);
+//       index++;
+//     }
+//   return arr;
+// }
