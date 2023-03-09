@@ -1,0 +1,55 @@
+body{
+    background-color: #1b1b1b;
+    color: #fff;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+
+.main-container{
+    text-align: center;
+}
+
+.roll{
+    color: #c1ff72;
+    font-size: 96px;
+    font-weight: bold;
+    transition: 0.75s color;
+}
+
+.roll:hover{
+    -webkit-text-stroke: 0.5px #c1ff72;
+    color:#1b1b1b
+}
+
+.player{
+    font-size: 48px;
+    display: inline-block;
+    margin: 0 5rem;
+}
+
+.dice-container{
+    position: relative;
+}
+
+.dice1{
+    margin-top: 2rem;
+    width: 200px;
+    position:absolute;
+    left:29.5%;
+}
+
+.dice2{
+    margin-top: 2rem;
+    width: 200px;
+    position:absolute;
+    right:29.5%;
+}
+
+.result-container{
+    margin-top: 20rem;
+    text-align: center;
+    position: relative;
+}
+
+.winner{
+    font-size: 36px;
+}
