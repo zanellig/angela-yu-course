@@ -18,9 +18,9 @@ for (let i = 0; i < numberOfDrumButtons.length; i++) {
         e.preventDefault();
         soundsArray[i].play();
         drums[i].style.color = '#c1ff72'
-        setTimeout(()=>{drums[i].style.color = '#1b1b1b'},250)
+        setTimeout(()=>{drums[i].style.color = '#1b1b1b'},150)
         drums[i].classList.add('pressed');
-        setTimeout(()=>{drums[i].classList.remove('pressed')},250);
+        setTimeout(()=>{drums[i].classList.remove('pressed')},150);
         })
         
     }
@@ -36,9 +36,9 @@ for (let i = 0; i < keyboardArray.length; i++) {
             keyDown = true;
             soundsArray[i].play();
             drums[i].style.color = '#c1ff72';
-            setTimeout(()=>{drums[i].style.color = '#1b1b1b'},250);
+            setTimeout(()=>{drums[i].style.color = '#1b1b1b'},150);
             drums[i].classList.add('pressed');
-            setTimeout(()=>{drums[i].classList.remove('pressed')},250);
+            setTimeout(()=>{drums[i].classList.remove('pressed')},150);
             
         }     
     })
