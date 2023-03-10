@@ -11,6 +11,7 @@ const tom4 = new Audio('./sounds/tom-4.mp3');
 
 const soundsArray = [kickBass,crash,snare,tom1,tom2,tom3,tom4];
 
+let keyDown = false;
 
 for (let i = 0; i < numberOfDrumButtons.length; i++) {
     drums[i].addEventListener('click',(e)=>{
@@ -18,20 +19,35 @@ for (let i = 0; i < numberOfDrumButtons.length; i++) {
         soundsArray[i].play();
         drums[i].style.color = '#c1ff72'
         setTimeout(()=>{drums[i].style.color = '#1b1b1b'},250)
-    })
-    
-}
+        drums[i].classList.add('pressed');
+        setTimeout(()=>{drums[i].classList.remove('pressed')},250);
+        })
+        
+    }
 
 const keyboardArray = ['w','a','s','d','j','k','l']
 
 for (let i = 0; i < keyboardArray.length; i++) {
     document.body.addEventListener('keydown',(e)=>{
         const activationKey = keyboardArray[i];
+        const keyPressed = e.key;
         if(e.key == activationKey){
+            buttonAnimation(keyPressed, keyDown);
+            keyDown = true;
             soundsArray[i].play();
-            drums[i].style.color = '#c1ff72'
-            setTimeout(()=>{drums[i].style.color = '#1b1b1b'},250)
-        }
+            drums[i].style.color = '#c1ff72';
+            setTimeout(()=>{drums[i].style.color = '#1b1b1b'},250);
+            drums[i].classList.add('pressed');
+            setTimeout(()=>{drums[i].classList.remove('pressed')},250);
+            
+        }     
     })
+
+}
+
+function buttonAnimation(keyPressed, pressed){
+    if(pressed === false){
+        console.log(document.querySelector(`.${keyPressed}`).classList[0]);
+    }
     
 }

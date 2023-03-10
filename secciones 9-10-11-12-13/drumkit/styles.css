@@ -78,5 +78,5 @@ footer {
   text-align: center;
   margin: 10px;
   background-color: white;
-  transition: 0.25s color;
+  transition: 0.25s color, 0.25s opacity;
 }
