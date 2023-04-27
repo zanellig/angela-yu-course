@@ -1,0 +1,31 @@
+<%- include('header'); %>
+<body>
+	<div class="box" id="heading">
+		<h1><%= title %></h1>
+	</div>
+
+	<div class="box">
+		<% for(let i = 0; i < items.length; i++){ %>
+		<div class="item">
+			<input type="checkbox" />
+			<p><%=items[i].name%></p>
+			<form action="/del-item" method="post">
+				<button type="submit" name="delete" value="<%= title %>"></button>
+				<!-- Hacer algo para que pueda pasar la informacion desde aca hasta el servidor -->
+			</form>
+		</div>
+		<% } %>
+
+		<form action="/" method="post" class="item">
+			<input
+				type="text"
+				name="item"
+				placeholder="Write your ToDo's here!"
+				autocomplete="off"
+				required
+			/>
+			<button type="submit" name="list" value="<%= title %>">+</button>
+		</form>
+	</div>
+	<%- include('footer'); %>
+</body>

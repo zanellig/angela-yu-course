@@ -10,7 +10,7 @@ async function main() {
 	const fruitsSchema = new Schema({
 		name: {
 			type: String,
-			required: [true, 'The name of the fruit is required!'],
+			required: [false, 'The name of the fruit is required!'],
 		},
 		rating: {
 			type: Number,
@@ -23,17 +23,42 @@ async function main() {
 
 	const Fruit = mongoose.model('Fruit', fruitsSchema);
 
-	/*
-	// Throws a fatal error, as the field name is required and the value of rating is not in the range specified.
-	const peach = new Fruit({
-		name: 'Peach',
-		rating: 0,
-		review: `It's pretty good.`,
+	const pineapple = new Fruit({
+		name: 'Pineapple',
+		rating: 8,
+		review: 'Good',
 	});
 
-	peach.save();
-	*/
-	/*
+	const mango = new Fruit({
+		name: 'Mango',
+		rating: 6,
+		review: 'Pretty decent fruit.',
+	});
+
+	const personSchema = new Schema({
+		name: String,
+		age: Number,
+		favouriteFruit: fruitsSchema,
+	});
+
+	const Person = mongoose.model('Person', personSchema);
+
+	const john = new Person({
+		name: 'John',
+		age: 37,
+	});
+
+	const amy = new Person({
+		name: 'Amy',
+		age: 12,
+		favouriteFruit: pineapple,
+	});
+
+	// await Fruit.deleteOne({ _id: '644420a287b7a02c6966bf87' });
+	// await Person.deleteOne({ _id: '644420f8bce5ba63105e8e14' });
+
+	// Throws a fatal error, as the field name is required and the value of rating is not in the range specified.
+
 	const orange = new Fruit({
 		name: 'Orange',
 		rating: 5,
@@ -45,16 +70,18 @@ async function main() {
 		rating: 9,
 		review: `Excellent summer fruit!`,
 	});
-	*/
-	// Fruit.insertMany([apple, orange, pear]);
+
+	await Person.find().then(people => {
+		people.forEach(person => {
+			console.log(person);
+		});
+	});
 
 	// Model methods no longer accept callbacks, so use .then() instead.
-	await Fruit.find().then((err, fruits) => {
-		if (err) {
-			console.error(err);
-		} else {
+	await Fruit.find().then(fruits => {
+		if (fruits) {
 			fruits.forEach(function (fruit) {
-				console.log(fruit.name);
+				console.log(fruit);
 			});
 		}
 	});
