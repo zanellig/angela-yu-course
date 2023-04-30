@@ -61,14 +61,14 @@ p {
 
 	padding: 20px;
 
-	font-size: 20px;
+	font-size: 16px;
 
 	font-weight: 400;
 
 	color: #00204a;
 }
 
-form {
+form.item {
 	text-align: center;
 
 	margin-left: 20px;
@@ -86,8 +86,6 @@ button {
 	background-color: #a683e3;
 
 	color: #fff;
-
-	font-size: 30px;
 
 	padding-bottom: 0;
 
@@ -142,4 +140,18 @@ footer {
 	color: #fff;
 	font-size: 12px;
 	border-width: 0;
+}
+
+.form-delete {
+	margin-left: auto;
+	margin-right: 13px;
+}
+
+.fa-trash {
+	font-size: 15px;
+	margin-top: 1px;
+}
+
+.btn-submit {
+	font-size: 30px;
 }

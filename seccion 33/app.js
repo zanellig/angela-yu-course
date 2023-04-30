@@ -41,10 +41,24 @@ async function main() {
 	});
 
 	const item3 = new Item({
-		name: '<-- Hit this to delete an item.',
+		name: '<-- Hit this to cross out an item.',
 	});
 
-	const defaultItems = [item1, item2, item3];
+	const item4 = new Item({
+		name: 'Hit that to delete an item -->',
+	});
+
+	const defaultItems = [item1, item2, item3, item4];
+
+	const listsSchema = new Schema({
+		name: {
+			type: String,
+			required: [true, `The name of the list is required.`],
+		},
+		items: [itemsSchema],
+	});
+
+	const List = mongoose.model('List', listsSchema);
 
 	// await Item.deleteMany({}).then(() => {
 	// 	console.log(`Succesfully deleted all documents from the collection.`);
@@ -84,19 +98,56 @@ async function main() {
 	});
 
 	app.post('/del-item', (req, res) => {
-		console.log(req.body.item);
+		const deletedId = req.body.delete;
+		Item.deleteOne({ _id: deletedId }).then(
+			console.log(`Item ${deletedId} deleted succesfully.`)
+		);
 		res.redirect('/');
-	});
-
-	app.get('/work', (req, res) => {
-		// If we go to the /work route, then render the list with the title Work List and render the items in the workItems array.
-		res.render('list', { title: 'Work List', items: workItems });
 	});
 
 	app.get('/about', (req, res) => {
 		// Render the about ejs page.
 		res.render('about');
 	});
+
+	app.get('/:list', (req, res) => {
+		// Get the requested title by the user and lower case it.
+		const titleRequested = req.params.list.toLocaleLowerCase();
+
+		// Upper case the first letter.
+		const upperCasedTitle =
+			titleRequested.at(0).toLocaleUpperCase() + titleRequested.slice(1);
+
+		// Find if the list with the requested title exists in the database.
+		List.findOne({ name: titleRequested }).then(list => {
+			if (!list) {
+				const newList = new List({
+					name: titleRequested,
+					items: new Item({
+						name: `You've created a ${titleRequested} list!`,
+					}),
+				});
+
+				newList.save();
+
+				List.findOne({ name: titleRequested }).then(document => {
+					res.render('list', {
+						title: upperCasedTitle,
+						items: document.items,
+					});
+					console.log(`${upperCasedTitle} list created succesfully.`);
+				});
+			} else if (list) {
+				List.findOne({ name: titleRequested }).then(document => {
+					res.render('list', {
+						title: upperCasedTitle,
+						items: document.items,
+					});
+				});
+			}
+		});
+	});
+
 	/*
 	app.post('/work', (req, res) => {
 		workItems.push(item);
