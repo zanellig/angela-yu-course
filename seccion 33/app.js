@@ -24,7 +24,13 @@ app.set('view engine', 'ejs');
 main().catch(err => console.log(err));
 
 async function main() {
-	await mongoose.connect('mongodb://127.0.0.1:27017/todolistDB');
+	// Connects to my local database
+	// await mongoose.connect('mongodb://127.0.0.1:27017/todolistDB');
+
+	// Connects to Atlas
+	await mongoose.connect(
+		`mongodb+srv://${process.env.USER}:${process.env.PASSWORD}@cluster0.dz2qmae.mongodb.net/todolistDB?retryWrites=true`
+	);
 
 	const itemsSchema = new Schema({
 		name: { type: String, required: [true, `The field name is required.`] },
@@ -64,45 +70,86 @@ async function main() {
 	// 	console.log(`Succesfully deleted all documents from the collection.`);
 	// });
 
-	app.get('/', (req, res) => {
-		Item.find({}).then(items => {
+	app.get('/', async (req, res) => {
+		// When we go to the home route, we search for all item documents and if there's none, we insert the default items.
+		await Item.find({}).then(async items => {
 			if (items.length === 0) {
-				Item.insertMany(defaultItems).then(() => {
+				await Item.insertMany(defaultItems).then(() => {
 					console.log(
 						`Succesfully inserted ${defaultItems.length} documents into the collection.`
 					);
 				});
 				res.redirect('/');
 			} else {
-				res.render('list', {
-					title: day,
-					items: items,
+				await List.find({}).then(lists => {
+					if (lists.length !== 0) {
+						res.render('list', {
+							// value="<%= title %>"
+							title: day,
+							items: items,
+							lists: lists,
+						});
+					} else {
+						res.render('list', {
+							// value="<%= title %>"
+							title: day,
+							items: items,
+							lists: [],
+						});
+					}
 				});
+				// Shows the main site with the items array found in the database.
 			}
 		});
-
-		// Render the list ejs page with the current date and the items on the array.
 	});
 
-	app.post('/', (req, res) => {
+	app.post('/', async (req, res) => {
+		// We take the input from the site and create a new item document.
 		const item = req.body.item;
 
-		// Otherwise pushes to the normal array.
 		const newItem = new Item({
 			name: item,
 		});
 
-		newItem.save();
+		// This takes the value from the submit button.
+		const list = req.body.list.toLocaleLowerCase();
 
-		res.redirect('/');
+		// We lower-case it so it matches everytime.
+		if (list === day.toLocaleLowerCase()) {
+			// If the input from the user comes from the home route (the default DAY list), then we save the item document and refresh.
+			await newItem.save();
+			res.redirect('/');
+		} else {
+			// If the query comes from a custom list, then it looks for the list that matches the name and pushes the input into the existing embedded document array.
+			await List.findOne({ name: list }).then(async foundList => {
+				foundList.items.push(newItem);
+				await foundList.save();
+				res.redirect(`/${list}`);
+			});
+		}
 	});
 
-	app.post('/del-item', (req, res) => {
+	app.post('/del-item', async (req, res) => {
+		// Get the id from the value on the submit button (_id of the document).
 		const deletedId = req.body.delete;
-		Item.deleteOne({ _id: deletedId }).then(
-			console.log(`Item ${deletedId} deleted succesfully.`)
-		);
-		res.redirect('/');
+
+		// Get the value from the hidden input (title of the list).
+		const list = req.body.list.toLocaleLowerCase();
+
+		// Same as before, if the list is the one on the home route, we just look in the items collection for the _id and delete it.
+		if (list === day.toLocaleLowerCase()) {
+			await Item.deleteOne({ _id: deletedId }).then(
+				console.log(`Item ${deletedId} deleted succesfully.`)
+			);
+			res.redirect('/');
+		} else {
+			// If it comes from a custom list, then we try to match the name of the list and use the mongoDB $pull operator to match the _id in the items array with the one that came from the value of the button.
+			await List.findOneAndUpdate(
+				{ name: list },
+				{ $pull: { items: { _id: deletedId } } }
+			).then(res.redirect(`/${list}`));
+			// We then redirect the user to the same list that the query came from.
+		}
 	});
 
 	app.get('/about', (req, res) => {
@@ -110,17 +157,18 @@ async function main() {
 		res.render('about');
 	});
 
-	app.get('/:list', (req, res) => {
-		// Get the requested title by the user and lower case it.
+	app.get('/:list', async (req, res) => {
+		// Get the requested title by the user and lower case it so it does not matter how the user spelled it.
 		const titleRequested = req.params.list.toLocaleLowerCase();
 
 		// Upper case the first letter.
-		const upperCasedTitle =
+		let upperCasedTitle =
 			titleRequested.at(0).toLocaleUpperCase() + titleRequested.slice(1);
 
 		// Find if the list with the requested title exists in the database.
-		List.findOne({ name: titleRequested }).then(list => {
+		await List.findOne({ name: titleRequested }).then(async list => {
 			if (!list) {
+				// If it doesn't, we create a list and embed an item document to it.
 				const newList = new List({
 					name: titleRequested,
 					items: new Item({
@@ -128,24 +176,43 @@ async function main() {
 					}),
 				});
 
-				newList.save();
+				await newList.save();
 
-				List.findOne({ name: titleRequested }).then(document => {
-					res.render('list', {
-						title: upperCasedTitle,
-						items: document.items,
+				// We wait for the list to be saved in the DB, and then we search for it and render the site with the title and items of the document found.
+				await List.findOne({ name: titleRequested }).then(async document => {
+					await List.find({}).then(lists => {
+						res.render('list', {
+							// De aca sale el value="<%= title %>"
+							title: upperCasedTitle,
+							items: document.items,
+							lists: lists,
+						});
 					});
+
 					console.log(`${upperCasedTitle} list created succesfully.`);
 				});
 			} else if (list) {
-				List.findOne({ name: titleRequested }).then(document => {
-					res.render('list', {
-						title: upperCasedTitle,
-						items: document.items,
+				// If it already exists, it just finds it and displays the items in the document.
+				await List.findOne({ name: titleRequested }).then(async document => {
+					await List.find({}).then(lists => {
+						res.render('list', {
+							// De aca sale el value="<%= title %>"
+							title: upperCasedTitle,
+							items: document.items,
+							lists: lists,
+						});
 					});
 				});
 			}
 		});
+	});
+
+	app.post('/new-list', (req, res) => {
+		res.redirect(`/${req.body.site}`);
+	});
+
+	app.post('/sel-list', (req, res) => {
+		res.redirect(`${req.body.site}`);
 	});
 
 	/*

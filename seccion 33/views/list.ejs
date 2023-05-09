@@ -13,6 +13,7 @@
 				<button type="submit" name="delete" value="<%= items[i]._id %>">
 					<i class="fa-solid fa-trash"></i>
 				</button>
+				<input type="hidden" name="list" value="<%= title %>" />
 			</form>
 		</div>
 
@@ -29,6 +30,38 @@
 			<button type="submit" name="list" value="<%= title %>" class="btn-submit">
 				+
 			</button>
+		</form>
+	</div>
+	<div class="box">
+		<div class="inner-box">
+			<h2>Create a new list</h2>
+		</div>
+		<form action="/new-list" method="post" class="item">
+			<input
+				type="text"
+				name="site"
+				placeholder="Enter the name of the list..."
+				autocomplete="off"
+				required
+			/>
+			<button type="submit" class="btn-submit">➜</button>
+		</form>
+	</div>
+
+	<div class="box">
+		<div class="inner-box">
+			<h2>Or go to a previously created one:</h2>
+		</div>
+		<form action="/sel-list" method="post" class="item">
+			<select name="site" id="site">
+				<% for(let i = 0; i < lists.length; i++){ %>
+				<option value="<%= lists[i].name %>">
+					<%= lists[i].name.at(0).toLocaleUpperCase() + lists[i].name.slice(1)
+					%>
+				</option>
+				<% } %>
+			</select>
+			<button type="submit" class="btn-submit">➜</button>
 		</form>
 	</div>
 	<%- include('footer'); %>
