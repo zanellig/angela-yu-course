@@ -1,0 +1,9 @@
+footer.ejs
+header.ejs
+*.ejs
+partials/
+views/partials/
+**footer
+**header
+*footer
+*header

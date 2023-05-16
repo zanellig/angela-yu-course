@@ -4,7 +4,7 @@
 const express = require('express');
 const app = express();
 // Setup port being 3000, if impossible (hosted on glitch F.E.) then port equals the port that the host decides.
-const port = 3000 || process.env.PORT;
+const port = process.env.PORT || 3000;
 const root = __dirname;
 
 const mongoose = require('mongoose');
