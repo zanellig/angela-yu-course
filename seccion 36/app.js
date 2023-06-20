@@ -104,16 +104,16 @@ async function main() {
 			Article.find({ title: req.params.article.split('_').join(' ') })
 				.catch(err => res.send(err))
 				.then(article => {
-					console.log(article);
+					// Returns an array because of find method. Can be changed to findOne but this works fine for now.
 					if (article.length !== 0) {
 						res.send({
 							title: article[0].title,
 							content: article[0].content,
 						});
 					} else {
-						res.send({
-							response: `Couldn't find the article requested. Check the spelling and capitalization and try again.`,
-						});
+						res.send(
+							`Couldn't find the article requested. Check the spelling and capitalization and try again.`
+						);
 					}
 				});
 		})
@@ -136,11 +136,11 @@ async function main() {
 					}
 				).then(async mongoResponse => {
 					if (mongoResponse.modifiedCount !== 0) {
-						const backupArticle = new Backup({
+						const backup = new Backup({
 							title: sentTitle,
 							content: sentContent,
 						});
-						await backupArticle.save();
+						await backup.save();
 
 						res.send(`Replaced the ${requestedArticleTitle} document.`);
 					} else {
@@ -155,16 +155,102 @@ async function main() {
 				res.send(`The field 'title' is required.`);
 			}
 		})
-		.patch((req, res) => {
+		.patch(async (req, res) => {
 			const requestedArticleTitle = req.params.article.split('_').join(' ');
 			const sentTitle = req.body.title;
 			const sentContent = req.body.content;
 			// I thought to use a ternary operator but it was a headache just to think about the structure of the code I would have to use.
 			// That's why we are going with if-else blocks again.
-			if (sentTitle && sentContent) {
-			} else if (sentTitle) {
-			} else if (sentContent) {
-			}
+			await Article.findOne({ title: requestedArticleTitle })
+				.then(async article => {
+					const currentTitle = article.title;
+					const currentContent = article.content;
+
+					const checkTitle = sentTitle !== currentTitle;
+					const checkContent = sentContent !== currentContent;
+
+					if (sentTitle && sentContent) {
+						if (checkTitle && checkContent) {
+							const backup = new Backup({
+								title: currentTitle,
+								content: currentContent,
+							});
+							await backup.save();
+
+							await Article.updateOne(
+								{ title: requestedArticleTitle },
+								{ title: sentTitle, content: sentContent }
+							);
+
+							res.send(
+								`Updated the ${currentTitle} article's title & content.`
+							);
+						} else if (!checkTitle) {
+							res.send(`The title has to be different.`);
+						} else if (!checkContent) {
+							res.send(`The content has to be different.`);
+						}
+					} else if (sentTitle) {
+						if (checkTitle) {
+							const backup = new Backup({
+								title: currentTitle,
+								content: currentContent,
+							});
+							await backup.save();
+
+							await Article.updateOne(
+								{ title: requestedArticleTitle },
+								{ title: sentTitle }
+							);
+							res.send(`Updated the ${currentTitle} article's title.`);
+						} else if (!checkTitle) {
+							res.send(`The title has to be different.`);
+						}
+					} else if (sentContent) {
+						const backup = new Backup({
+							title: currentTitle,
+							content: currentContent,
+						});
+						await backup.save();
+
+						await Article.updateOne(
+							{ title: requestedArticleTitle },
+							{ content: sentContent }
+						);
+						res.send(`Updated the ${currentTitle} article's content.`);
+					} else if (!checkContent) {
+						res.send(`The content has to be different.`);
+					}
+				})
+				.catch(err => {
+					console.log(err);
+				});
+		})
+		.delete(async (req, res) => {
+			const requestedArticleTitle = req.params.article.split('_').join(' ');
+			let confirm = req.body.confirm;
+
+			if (confirm) {
+				confirm = confirm.toLocaleLowerCase();
+				if (confirm === 'yes' || confirm === 'y') {
+					Article.deleteOne({ title: requestedArticleTitle })
+						.catch(err => {
+							res.send(err);
+						})
+						.then(
+							res.send({
+								response: `Deleted the ${requestedArticleTitle} article.`,
+							})
+						);
+				} else {
+					res.send(
+						`Please confirm the deletion by sending a 'YES' or 'Y' string with the key 'confirm'. You've sent '${confirm}'`
+					);
+				}
+			} else
+				res.send(
+					`Please confirm the deletion by sending a 'YES' or 'Y' string with the key 'confirm'.`
+				);
 		});
 
 	app.listen(port, () => {
