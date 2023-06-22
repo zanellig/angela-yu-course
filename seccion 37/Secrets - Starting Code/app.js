@@ -1,5 +1,7 @@
 'use strict';
 
+require('dotenv').config();
+
 // Setup express module
 const express = require('express');
 const app = express();
@@ -7,10 +9,13 @@ const app = express();
 const port = process.env.PORT || 5000;
 const root = __dirname;
 
-const { credentials } = require(`${root}/credentials.js`);
+// const { credentials } = require(`${root}/credentials.js`);
 
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
+
+// mongoose-encryption
+const encrypt = require('mongoose-encryption');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -22,13 +27,17 @@ main().catch(err => console.log(err));
 
 async function main() {
 	await mongoose.connect(
-		`mongodb+srv://${credentials.user}:${credentials.password}@cluster0.dz2qmae.mongodb.net/secretsDB?retryWrites=true&w=majority`
+		`mongodb+srv://${process.env.USER}:${process.env.PASSWORD}@cluster0.dz2qmae.mongodb.net/secretsDB?retryWrites=true&w=majority`
 	);
 
 	const userSchema = new Schema({
 		email: { type: String, required: true },
 		password: { type: String, required: true },
 	});
+
+	const secret = process.env.SECRET;
+
+	userSchema.plugin(encrypt, { secret: secret, encryptedFields: ['password'] });
 
 	const User = mongoose.model('User', userSchema);
 
@@ -75,16 +84,14 @@ async function main() {
 		const emailInput = req.body.username;
 		const passwordInput = req.body.password;
 
-		User.findOne({ email: emailInput, password: passwordInput }).then(
-			foundUser => {
-				if (foundUser) {
-					res.render('secrets');
-				} else {
-					console.log(`The username or password is incorrect.`);
-					res.redirect('login');
-				}
+		User.findOne({ email: emailInput }).then(foundUser => {
+			if (foundUser.password === passwordInput) {
+				res.render('secrets');
+			} else {
+				console.log(`The username or password is incorrect.`);
+				res.redirect('login');
 			}
-		);
+		});
 	});
 
 	app.get('/logout', (req, res) => {
