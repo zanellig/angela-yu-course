@@ -14,7 +14,8 @@ const root = __dirname;
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
-const md5 = require('md5');
+const bcrypt = require('bcrypt');
+const saltRounds = 15;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -50,42 +51,46 @@ async function main() {
 
 	app.post('/register', (req, res) => {
 		const emailInput = req.body.username;
-		const passwordInput = md5(req.body.password);
+		const passwordInput = req.body.password;
 
-		const newUser = new User({
-			email: emailInput,
-			password: passwordInput,
-		});
-		User.findOne({ email: emailInput }).then(foundUser => {
-			if (!foundUser) {
-				newUser
-					.save()
-					.catch(err => {
-						console.log(err);
-					})
-					.then(() => {
-						res.render('secrets');
-					});
-			} else {
-				console.log(
-					`The user already exists. Please login with your current password.`
-				);
-				res.redirect('register');
-			}
+		bcrypt.hash(passwordInput, saltRounds, async function (err, hash) {
+			const newUser = new User({
+				email: emailInput,
+				password: hash,
+			});
+			await User.findOne({ email: emailInput }).then(foundUser => {
+				if (!foundUser) {
+					newUser
+						.save()
+						.catch(err => {
+							console.log(err);
+						})
+						.then(() => {
+							res.render('secrets');
+						});
+				} else {
+					console.log(
+						`The user already exists. Please login with your current password.`
+					);
+					res.redirect('register');
+				}
+			});
 		});
 	});
 
 	app.post('/login', (req, res) => {
 		const emailInput = req.body.username;
-		const passwordInput = md5(req.body.password);
+		const passwordInput = req.body.password;
 
 		User.findOne({ email: emailInput }).then(foundUser => {
-			if (foundUser.password === passwordInput) {
-				res.render('secrets');
-			} else {
-				console.log(`The username or password is incorrect.`);
-				res.redirect('login');
-			}
+			bcrypt.compare(passwordInput, foundUser.password, function (err, result) {
+				if (result) {
+					res.render('secrets');
+				} else {
+					console.log(`The username or password is incorrect.`);
+					res.redirect('login');
+				}
+			});
 		});
 	});
 
