@@ -1,28 +1,45 @@
 /* eslint-disable react/prop-types */
+import { useState } from 'react';
+
 import Footer from './Footer';
 import Header from './Header';
 import Note from './Note';
-import notes from './notes.js';
 
 import CreateArea from './CreateArea';
 
 function App() {
+	const [notes, setNotes] = useState([]);
+
 	function addNote(input) {
-		input.key = notes.length + 1;
-		notes.push(input);
-		console.log(notes);
+		if (input.title && input.content) {
+			input.key = `note-${notes.length}`;
+			input.id = input.key;
+			const newArr = [...notes];
+			newArr.push(input);
+			setNotes(newArr);
+			console.log(notes);
+		}
+	}
+
+	function handleDelete(noteId) {
+		if (notes) {
+			const newArr = notes.filter(note => !note.id === noteId);
+			setNotes(newArr);
+		}
 	}
 
 	return (
 		<>
 			<Header />
 			<CreateArea onAdd={addNote} />
-			{notes.map(element => {
+			{notes.map(note => {
 				return (
 					<Note
-						key={element.id}
-						title={element.title}
-						content={element.content}
+						title={note.title}
+						content={note.content}
+						key={note.key}
+						id={note.id}
+						onDelete={handleDelete}
 					/>
 				);
 			})}

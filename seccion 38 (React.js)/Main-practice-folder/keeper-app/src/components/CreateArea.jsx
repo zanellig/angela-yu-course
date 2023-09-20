@@ -5,7 +5,8 @@ function CreateArea(props) {
 	const [note, setNote] = useState({ title: '', content: '' });
 
 	function updateNote(event) {
-		const { name, input } = event.target.value;
+		const input = event.target.value;
+		const name = event.target.attributes.name.value;
 		setNote(prev => {
 			const newObj = { ...prev };
 			if (name === 'title') {
