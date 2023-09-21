@@ -23,7 +23,7 @@ function App() {
 
 	function handleDelete(noteId) {
 		if (notes) {
-			const newArr = notes.filter(note => !note.id === noteId);
+			const newArr = notes.filter(note => note.id !== noteId);
 			setNotes(newArr);
 		}
 	}
